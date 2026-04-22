@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"nhooyr.io/websocket"
+	"github.com/coder/websocket"
 )
 
 // WSMessage is sent over WebSocket connections.

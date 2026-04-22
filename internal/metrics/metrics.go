@@ -17,8 +17,6 @@ import (
 
 // Collector is the set of exported metrics.
 type Collector struct {
-	mu sync.RWMutex
-
 	// Counters (monotonic)
 	tasksTotal    atomic.Int64
 	tasksSuccess  atomic.Int64

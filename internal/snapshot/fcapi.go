@@ -55,20 +55,6 @@ func (c *fcClient) createSnapshot(ctx context.Context, memFilePath, snapshotPath
 	return c.request(ctx, "PUT", "/snapshot/create", body)
 }
 
-// loadSnapshot tells Firecracker to restore from snapshot artefacts.
-func (c *fcClient) loadSnapshot(ctx context.Context, memFilePath, snapshotPath string, resumeVM bool) error {
-	body := map[string]interface{}{
-		"snapshot_path":    snapshotPath,
-		"mem_backend": map[string]interface{}{
-			"backend_type":  "File",
-			"backend_path":  memFilePath,
-		},
-		"enable_diff_snapshots": false,
-		"resume_vm":             resumeVM,
-	}
-	return c.request(ctx, "PUT", "/snapshot/load", body)
-}
-
 func (c *fcClient) request(ctx context.Context, method, path string, body interface{}) error {
 	data, err := json.Marshal(body)
 	if err != nil {

@@ -25,7 +25,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/jonnonz1/orchestrator/internal/config"
@@ -49,7 +48,6 @@ type Manager struct {
 	log     *slog.Logger
 	vmMgr   *vm.Manager
 
-	poolMu   sync.Mutex
 	poolCh   chan Artefact
 	poolSize int
 }

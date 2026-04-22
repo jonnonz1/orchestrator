@@ -56,7 +56,7 @@ func main() {
 		}
 		handleTask(os.Args[2:], log)
 	case "mcp":
-		handleMCP(log)
+		handleMCP()
 	case "mcp-serve":
 		handleMCPServe(os.Args[2:], log)
 	case "serve":
@@ -434,9 +434,9 @@ func handleMCPServe(args []string, log *slog.Logger) {
 	}
 }
 
-func handleMCP(log *slog.Logger) {
+func handleMCP() {
 	// stdio transport — redirect slog to stderr so it doesn't interfere with JSON-RPC on stdout.
-	log = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
+	log := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
 
 	mgr := vm.NewManager(log)
 	store := task.NewStore()
