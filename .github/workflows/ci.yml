@@ -25,11 +25,20 @@ jobs:
           go-version: ${{ matrix.go-version }}
           cache: true
 
+      # The embedded-frontend directive in cmd/orchestrator/main.go
+      # (`//go:embed all:web-dist`) requires web-dist to exist before any Go
+      # command parses the package. Create a stub before vet/test so CI
+      # doesn't need to build the full frontend just to run Go checks.
+      - name: Stub embedded frontend
+        run: |
+          mkdir -p cmd/orchestrator/web-dist
+          echo "<!doctype html><title>stub</title>" > cmd/orchestrator/web-dist/index.html
+
       - name: go vet
-        run: go vet ./...
+        run: go vet ./cmd/... ./internal/...
 
       - name: go test
-        run: go test -race -timeout 3m ./...
+        run: go test -race -timeout 3m ./cmd/... ./internal/...
 
       - name: staticcheck
         uses: dominikh/staticcheck-action@v1
@@ -42,11 +51,8 @@ jobs:
           go install golang.org/x/vuln/cmd/govulncheck@latest
           govulncheck ./cmd/... ./internal/...
 
-      - name: Build host binary (without embedded frontend)
-        run: |
-          mkdir -p cmd/orchestrator/web-dist
-          echo "<!doctype html><title>stub</title>" > cmd/orchestrator/web-dist/index.html
-          go build -o bin/orchestrator ./cmd/orchestrator
+      - name: Build host binary (stub frontend)
+        run: go build -o bin/orchestrator ./cmd/orchestrator
 
       - name: Build guest agent
         run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/agent ./cmd/agent
