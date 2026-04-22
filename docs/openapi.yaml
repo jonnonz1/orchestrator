@@ -1,0 +1,304 @@
+openapi: 3.1.0
+info:
+  title: Orchestrator REST API
+  version: 0.1.0
+  description: |
+    REST interface to the Orchestrator MicroVM orchestrator. Drives VM lifecycle,
+    task execution, and result retrieval. All endpoints sit under `/api/v1`.
+
+    When the server binds a non-loopback address a bearer token is required
+    on every request (except `/api/v1/health` and `/metrics`).
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  - url: http://127.0.0.1:8080
+    description: Local default
+  - url: "http://{host}:{port}"
+    description: Custom deployment
+    variables:
+      host:
+        default: "orchestrator.internal"
+      port:
+        default: "8080"
+security:
+  - bearer: []
+paths:
+  /api/v1/health:
+    get:
+      summary: Liveness probe
+      security: []
+      responses:
+        "200":
+          description: Server is alive.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+
+  /api/v1/stats:
+    get:
+      summary: Aggregate statistics
+      responses:
+        "200":
+          description: Counts of VMs and tasks.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Stats" }
+
+  /api/v1/metrics:
+    get:
+      summary: Prometheus metrics (text format 0.0.4)
+      security: []
+      responses:
+        "200":
+          description: Prometheus-compatible metrics output.
+          content:
+            "text/plain; version=0.0.4": { schema: { type: string } }
+
+  /api/v1/vms:
+    get:
+      summary: List VMs
+      responses:
+        "200":
+          description: Array of VMs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/VM" }
+    post:
+      summary: Create + start a VM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VMCreate" }
+      responses:
+        "201":
+          description: VM created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VM" }
+
+  /api/v1/vms/{name}:
+    parameters:
+      - in: path
+        name: name
+        required: true
+        schema: { type: string }
+    get:
+      summary: Get a single VM
+      responses:
+        "200":
+          description: VM details.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VM" }
+    delete:
+      summary: Destroy a VM
+      responses:
+        "204": { description: VM destroyed. }
+
+  /api/v1/vms/{name}/stop:
+    post:
+      summary: Stop a VM without cleaning up state
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: VM stopped. }
+
+  /api/v1/vms/{name}/exec:
+    post:
+      summary: Execute a command in a running VM
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [command]
+              properties:
+                command: { type: string, description: "Shell command to run" }
+      responses:
+        "200":
+          description: Command output.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExecResult" }
+
+  /api/v1/tasks:
+    get:
+      summary: List tasks
+      responses:
+        "200":
+          description: Array of tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Task" }
+    post:
+      summary: Create and run a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TaskCreate" }
+      responses:
+        "201":
+          description: Task created (async — poll for completion).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Task" }
+
+  /api/v1/tasks/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    get:
+      summary: Get a task
+      responses:
+        "200":
+          description: Task details including accumulated output.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Task" }
+    delete:
+      summary: Cancel a running task
+      responses:
+        "204": { description: Task cancelled. }
+
+  /api/v1/tasks/{id}/stream:
+    get:
+      summary: WebSocket stream of task output
+      description: Upgrades to a WebSocket emitting JSON frames per stream event.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "101": { description: Switching Protocols }
+
+  /api/v1/tasks/{id}/files:
+    get:
+      summary: List files produced by a task
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: File metadata.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/FileEntry" }
+
+  /api/v1/tasks/{id}/files/{filename}:
+    get:
+      summary: Download a single task file
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: path
+          name: filename
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: File contents with best-effort content-type.
+          content:
+            application/octet-stream: { schema: { type: string, format: binary } }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+  schemas:
+    VMCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, pattern: "^[a-zA-Z0-9][a-zA-Z0-9-]*$" }
+        ram_mb: { type: integer, minimum: 128, maximum: 32768, default: 512 }
+        vcpus: { type: integer, minimum: 1, maximum: 32, default: 1 }
+    VM:
+      type: object
+      properties:
+        name: { type: string }
+        pid: { type: integer }
+        ram_mb: { type: integer }
+        vcpus: { type: integer }
+        guest_ip: { type: string }
+        tap_dev: { type: string }
+        state: { type: string, enum: [creating, starting, running, stopped, destroyed, error] }
+        launched_at: { type: string, format: date-time }
+    TaskCreate:
+      type: object
+      required: [prompt]
+      properties:
+        prompt: { type: string }
+        runtime: { type: string, default: claude }
+        ram_mb: { type: integer, default: 2048 }
+        vcpus: { type: integer, default: 2 }
+        timeout: { type: integer, default: 600, description: "Seconds" }
+        max_turns: { type: integer }
+        allowed_tools: { type: array, items: { type: string } }
+        env_vars: { type: object, additionalProperties: { type: string } }
+        files: { type: object, additionalProperties: { type: string } }
+        output_dir: { type: string, default: /root/output }
+        auto_destroy: { type: boolean, default: true }
+    Task:
+      allOf:
+        - $ref: "#/components/schemas/TaskCreate"
+        - type: object
+          properties:
+            id: { type: string }
+            status: { type: string, enum: [pending, running, completed, failed, cancelled] }
+            vm_name: { type: string }
+            exit_code: { type: integer, nullable: true }
+            output: { type: string }
+            error: { type: string }
+            result_files: { type: array, items: { type: string } }
+            cost_usd: { type: number }
+            created_at: { type: string, format: date-time }
+            started_at: { type: string, format: date-time, nullable: true }
+            completed_at: { type: string, format: date-time, nullable: true }
+    ExecResult:
+      type: object
+      properties:
+        stdout: { type: string }
+        stderr: { type: string }
+        exit_code: { type: integer }
+    FileEntry:
+      type: object
+      properties:
+        name: { type: string }
+        size: { type: integer }
+        mime_type: { type: string }
+    Stats:
+      type: object
+      properties:
+        total_vms: { type: integer }
+        running_vms: { type: integer }
+        total_tasks: { type: integer }

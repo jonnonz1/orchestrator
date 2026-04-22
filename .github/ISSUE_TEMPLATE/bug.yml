@@ -1,0 +1,53 @@
+name: Bug report
+description: Something is broken or behaving unexpectedly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. The more of the fields below you fill in, the faster we can triage.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: "When I run `orchestrator task run --prompt ...`, the VM fails to boot because …"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands / request.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Orchestrator version
+      description: Output of `orchestrator version`.
+      placeholder: "orchestrator v0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Host OS + kernel
+      description: Output of `uname -a` and the distro name.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: |
+        Paste `journalctl -u orchestrator` or the `/tmp/jailer.log` from the failing VM.
+        Scrub credentials before pasting.
+      render: shell

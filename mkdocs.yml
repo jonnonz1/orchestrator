@@ -1,0 +1,129 @@
+site_name: Orchestrator
+site_description: Self-hosted MicroVM orchestrator for AI agents — KVM-isolated Firecracker sandboxes with 4-second cold boot.
+site_url: https://jonnonz1.github.io/orchestrator/
+repo_url: https://github.com/jonnonz1/orchestrator
+repo_name: jonnonz1/orchestrator
+edit_uri: edit/main/docs/
+copyright: Apache License 2.0
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+    - content.tabs.link
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      check_paths: true
+      base_path:
+        - "."
+        - "docs"
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+  - awesome-pages
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jonnonz1/orchestrator
+  generator: false
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+      - Configuration: getting-started/configuration.md
+  - Concepts:
+      - concepts/index.md
+      - Architecture: concepts/architecture.md
+      - Security model: concepts/security-model.md
+      - Runtimes: concepts/runtimes.md
+      - Networking & vsock: concepts/networking.md
+      - Snapshots & warm pool: concepts/snapshots.md
+  - Guides:
+      - guides/index.md
+      - Running a task: guides/running-tasks.md
+      - Operating the server: guides/operating-server.md
+      - Deployment: guides/deployment.md
+      - Observability: guides/observability.md
+      - Egress policy: guides/egress-policy.md
+      - Rate limiting: guides/rate-limiting.md
+      - Troubleshooting: guides/troubleshooting.md
+  - Reference:
+      - reference/index.md
+      - CLI: reference/cli.md
+      - Configuration (env vars): reference/configuration.md
+      - REST API: reference/rest-api.md
+      - MCP server: reference/mcp-server.md
+      - Runtime plugin API: reference/runtime-plugin.md
+      - Firecracker deep-dive: reference/firecracker.md
+      - Technical internals: reference/technical.md
+  - SDKs:
+      - sdks/index.md
+      - Python: sdks/python.md
+      - TypeScript: sdks/typescript.md
+  - Examples: examples.md
+  - Contributing: contributing.md
+  - Security: security.md
+  - Changelog: changelog.md
+  - FAQ: faq.md

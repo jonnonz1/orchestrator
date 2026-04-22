@@ -1,0 +1,34 @@
+Orchestrator — MicroVM Orchestrator for AI Agents
+Copyright 2026 The Orchestrator Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+----
+
+This product includes software from the following third-party projects:
+
+* Firecracker (https://github.com/firecracker-microvm/firecracker)
+  Licensed under the Apache License 2.0.
+  The OpenAPI specification at firecracker-api-v1.15.0.yaml is a vendored
+  copy from the Firecracker project.
+
+* mcp-go (https://github.com/mark3labs/mcp-go)
+  Licensed under the MIT License.
+
+* go-chi (https://github.com/go-chi/chi)
+  Licensed under the MIT License.
+
+* go-iptables (https://github.com/coreos/go-iptables)
+  Licensed under the Apache License 2.0.
+
+* netlink (https://github.com/vishvananda/netlink)
+  Licensed under the Apache License 2.0.
+
+* websocket (https://github.com/nhooyr/websocket)
+  Licensed under the ISC License.
+
+* React, Vite, TailwindCSS — see web/package.json for individual licenses.

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "orchestrator-sdk"
+version = "0.1.0"
+description = "Python client for the Orchestrator MicroVM orchestrator"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "The Orchestrator Authors" }]
+keywords = ["orchestrator", "firecracker", "microvm", "agent", "claude", "mcp"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/jonnonz1/orchestrator"
+Source = "https://github.com/jonnonz1/orchestrator"
+Issues = "https://github.com/jonnonz1/orchestrator/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["orchestrator"]
