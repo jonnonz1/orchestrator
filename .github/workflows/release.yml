@@ -43,7 +43,7 @@ jobs:
           tar -czf dist/orchestrator-${GITHUB_REF_NAME}-linux-amd64.tar.gz -C bin orchestrator agent
           sha256sum dist/*.tar.gz > dist/SHA256SUMS
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/orchestrator-*-linux-amd64.tar.gz
